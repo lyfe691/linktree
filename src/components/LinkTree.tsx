@@ -8,7 +8,8 @@ import {
   Container,
   Flex,
   keyframes,
-  Image,
+  useBreakpointValue,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import { Avatar } from "@chakra-ui/avatar";
 import { motion } from "framer-motion";
@@ -21,27 +22,45 @@ const MotionLink = motion(ChakraLink);
 const MotionFlex = motion(Flex);
 
 const floatAnimation = keyframes`
-  0% { transform: translateY(0px) rotate(0deg); }
-  25% { transform: translateY(-10px) rotate(-1deg); }
-  75% { transform: translateY(8px) rotate(1deg); }
-  100% { transform: translateY(0px) rotate(0deg); }
+  0% { transform: translateY(0px) rotate(0deg) scale(1); }
+  25% { transform: translateY(-10px) rotate(-2deg) scale(1.02); }
+  75% { transform: translateY(8px) rotate(2deg) scale(0.98); }
+  100% { transform: translateY(0px) rotate(0deg) scale(1); }
 `;
 
 const pulseAnimation = keyframes`
-  0% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.05); opacity: 1; }
-  100% { transform: scale(1); opacity: 0.8; }
+  0% { transform: scale(1); opacity: 0.4; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 0.4; }
 `;
 
 const starryBackground = keyframes`
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.2) rotate(180deg); }
+  100% { transform: scale(1) rotate(360deg); }
+`;
+
+const cosmicGlow = keyframes`
+  0% { opacity: 0.3; filter: blur(8px); }
+  50% { opacity: 0.6; filter: blur(12px); }
+  100% { opacity: 0.3; filter: blur(8px); }
 `;
 
 const orbitAnimation = keyframes`
-  0% { transform: rotate(0deg) translateX(6px) rotate(0deg); }
-  100% { transform: rotate(360deg) translateX(6px) rotate(-360deg); }
+  0% { transform: rotate(0deg) translateX(8px) rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) translateX(12px) rotate(-180deg) scale(1.2); }
+  100% { transform: rotate(360deg) translateX(8px) rotate(-360deg) scale(1); }
+`;
+
+const starField = keyframes`
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-50%, -50%); }
+`;
+
+const deepSpace = keyframes`
+  0% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 0.5; }
 `;
 
 const links = [
@@ -51,6 +70,7 @@ const links = [
     icon: FaGithub,
     color: "#f0f6fc",
     description: "Check out my code repositories",
+    category: "social",
   },
   {
     title: "LinkedIn",
@@ -58,6 +78,7 @@ const links = [
     icon: FaLinkedin,
     color: "#0A66C2",
     description: "Connect with me professionally",
+    category: "social",
   },
   {
     title: "Website",
@@ -65,6 +86,7 @@ const links = [
     icon: FaGlobe,
     color: "whiteAlpha.900",
     description: "Visit my personal website",
+    category: "personal",
   },
   {
     title: "TikTok",
@@ -72,6 +94,7 @@ const links = [
     icon: FaTiktok,
     color: "#ffffff",
     description: "Follow my TikTok content",
+    category: "social",
   },
   {
     title: "Ko-fi",
@@ -79,6 +102,7 @@ const links = [
     icon: SiKofi,
     color: "#FF5E5B",
     description: "Support my work",
+    category: "support",
   },
   {
     title: "PayPal",
@@ -86,11 +110,13 @@ const links = [
     icon: FaPaypal,
     color: "#00457C",
     description: "Send me a tip",
+    category: "support",
   },
 ];
 
 const ParticleCanvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isMobile] = useMediaQuery("(max-width: 480px)");
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -110,21 +136,26 @@ const ParticleCanvas = () => {
       speedY: number;
       opacity: number;
       pulse: number;
+      color: string;
     }> = [];
+
+    const colors = ['#6366f1', '#818cf8', '#c4b5fd', '#ffffff'];
+    const particleCount = isMobile ? 40 : 80;
 
     const createParticle = () => {
       return {
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        size: Math.random() * 2,
-        speedX: (Math.random() - 0.5) * 0.2,
-        speedY: (Math.random() - 0.5) * 0.2,
-        opacity: Math.random() * 0.5,
+        size: Math.random() * 3,
+        speedX: (Math.random() - 0.5) * 0.3,
+        speedY: (Math.random() - 0.5) * 0.3,
+        opacity: Math.random() * 0.5 + 0.2,
         pulse: Math.random() * Math.PI,
+        color: colors[Math.floor(Math.random() * colors.length)],
       };
     };
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < particleCount; i++) {
       particles.push(createParticle());
     }
 
@@ -133,18 +164,25 @@ const ParticleCanvas = () => {
       
       particles.forEach(particle => {
         particle.pulse += 0.02;
-        particle.opacity = 0.3 + Math.sin(particle.pulse) * 0.2;
+        particle.opacity = 0.2 + Math.sin(particle.pulse) * 0.3;
         
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${particle.opacity})`;
+        ctx.fillStyle = particle.color.replace('1)', `${particle.opacity})`);
         ctx.fill();
 
+        // Add glow effect
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = particle.color;
+        
         particle.x += particle.speedX;
         particle.y += particle.speedY;
 
-        if (particle.x < 0 || particle.x > canvas.width) particle.speedX *= -1;
-        if (particle.y < 0 || particle.y > canvas.height) particle.speedY *= -1;
+        // Wrap around screen
+        if (particle.x < 0) particle.x = canvas.width;
+        if (particle.x > canvas.width) particle.x = 0;
+        if (particle.y < 0) particle.y = canvas.height;
+        if (particle.y > canvas.height) particle.y = 0;
       });
 
       requestAnimationFrame(animate);
@@ -159,7 +197,7 @@ const ParticleCanvas = () => {
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [isMobile]);
 
   return (
     <Box
@@ -180,69 +218,80 @@ const ParticleCanvas = () => {
 };
 
 export const LinkTree = () => {
+  const [isMobile] = useMediaQuery("(max-width: 480px)");
+  const particleCount = useBreakpointValue({ base: 50, md: 100 });
+  const avatarSize = useBreakpointValue({ base: "xl", md: "2xl" });
+  const headingSize = useBreakpointValue({ base: "md", md: "lg" });
+  const linkSpacing = useBreakpointValue({ base: 3, md: 4 });
+  const containerPadding = useBreakpointValue({ base: 4, md: 8 });
+
   return (
     <Container 
-      py={8} 
+      py={containerPadding}
+      px={containerPadding}
       minH="100vh" 
-      maxW="container.sm"
+      maxW={{ base: "100%", md: "container.sm" }}
       display="flex" 
       flexDirection="column"
       position="relative"
       overflow="hidden"
-      _before={{
-        content: '""',
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: "linear-gradient(45deg, #000000, #020510, #000000)",
-        backgroundSize: "400% 400%",
-        animation: `${starryBackground} 15s ease infinite`,
-        zIndex: -2,
-      }}
-      _after={{
-        content: '""',
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: "radial-gradient(circle at 50% 50%, rgba(1, 4, 20, 0.5) 0%, rgba(0, 0, 0, 0.9) 100%)",
-        zIndex: -1,
+      sx={{
+        "&:before, &:after": {
+          content: '""',
+          position: "fixed",
+          top: "-50%",
+          left: "-50%",
+          width: "200%",
+          height: "200%",
+          backgroundImage: "radial-gradient(2px 2px at 40px 60px, #ffffff 0%, rgba(0,0,0,0) 100%), radial-gradient(2px 2px at 20px 50px, #818cf8 0%, rgba(0,0,0,0) 100%), radial-gradient(2px 2px at 30px 100px, #6366f1 0%, rgba(0,0,0,0) 100%), radial-gradient(2px 2px at 40px 60px, #c4b5fd 0%, rgba(0,0,0,0) 100%), radial-gradient(2px 2px at 110px 90px, #ffffff 0%, rgba(0,0,0,0) 100%), radial-gradient(2px 2px at 190px 150px, #818cf8 0%, rgba(0,0,0,0) 100%)",
+          backgroundColor: "transparent",
+          animation: `${starField} 60s linear infinite`,
+          zIndex: -3,
+        },
+        "&:after": {
+          backgroundImage: "radial-gradient(2px 2px at 150px 120px, #ffffff 0%, rgba(0,0,0,0) 100%), radial-gradient(2px 2px at 70px 90px, #818cf8 0%, rgba(0,0,0,0) 100%), radial-gradient(2px 2px at 110px 130px, #6366f1 0%, rgba(0,0,0,0) 100%), radial-gradient(2px 2px at 180px 60px, #c4b5fd 0%, rgba(0,0,0,0) 100%), radial-gradient(2px 2px at 20px 50px, #ffffff 0%, rgba(0,0,0,0) 100%), radial-gradient(2px 2px at 150px 180px, #818cf8 0%, rgba(0,0,0,0) 100%)",
+          animationDirection: "reverse",
+          opacity: 0.5,
+        }
       }}
     >
+      <Box
+        position="fixed"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        background="linear-gradient(to bottom, #000000 0%, #020510 50%, #000000 100%)"
+        zIndex={-4}
+      />
+      
+      <Box
+        position="fixed"
+        top="50%"
+        left="50%"
+        transform="translate(-50%, -50%)"
+        width="200vmax"
+        height="200vmax"
+        background="radial-gradient(circle at center, rgba(99, 102, 241, 0.03) 0%, rgba(0, 0, 0, 0) 60%)"
+        animation={`${deepSpace} 15s ease-in-out infinite`}
+        zIndex={-2}
+        pointerEvents="none"
+        opacity={0.6}
+      />
+
+      <Box
+        position="fixed"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        backdropFilter="blur(80px)"
+        zIndex={-1}
+      />
+
       <ParticleCanvas />
       
-      <MotionFlex 
-        position="fixed"
-        top={4}
-        left="50%"
-        transform="translateX(-50%)"
-        alignItems="center"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-      >
-        <Image 
-          src="/logo.svg" 
-          alt="Logo"
-          width="32px"
-          height="32px"
-          mr={2}
-        />
-        <Text
-          fontSize="xl"
-          fontWeight="bold"
-          bgGradient="linear(to-r, #6366f1, #818cf8)"
-          bgClip="text"
-          letterSpacing="wider"
-        >
-          SpaceTree
-        </Text>
-      </MotionFlex>
-
-      <VStack gap={8} alignItems="stretch" flex="1" position="relative" zIndex={1} mt={16}>
+      <VStack gap={linkSpacing} alignItems="stretch" flex="1" position="relative" zIndex={1}>
         <Box
           position="absolute"
           top="50%"
@@ -252,16 +301,17 @@ export const LinkTree = () => {
           height="100%"
           maxW="600px"
           maxH="600px"
-          background="radial-gradient(circle at center, rgba(99, 102, 241, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%)"
-          filter="blur(50px)"
+          background="radial-gradient(circle at center, rgba(99, 102, 241, 0.2) 0%, transparent 70%)"
+          filter="blur(40px)"
+          animation={`${cosmicGlow} 6s ease-in-out infinite`}
           zIndex={-1}
         />
         
-        <VStack spacing={6}>
+        <VStack spacing={isMobile ? 4 : 6}>
           <MotionBox
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 2 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
             animation={`${floatAnimation} 8s ease-in-out infinite`}
           >
             <Box position="relative">
@@ -270,37 +320,66 @@ export const LinkTree = () => {
                 top="50%"
                 left="50%"
                 transform="translate(-50%, -50%)"
-                width="120%"
-                height="120%"
+                width={isMobile ? "130%" : "150%"}
+                height={isMobile ? "130%" : "150%"}
                 borderRadius="full"
-                background="radial-gradient(circle at center, rgba(99, 102, 241, 0.2) 0%, transparent 70%)"
+                background="radial-gradient(circle at center, rgba(99, 102, 241, 0.3) 0%, transparent 70%)"
                 animation={`${pulseAnimation} 4s ease-in-out infinite`}
               />
-              <Box
-                position="absolute"
-                top="50%"
-                left="50%"
-                transform="translate(-50%, -50%)"
-                width="140%"
-                height="140%"
-                borderRadius="full"
-                border="1px solid rgba(99, 102, 241, 0.1)"
-                animation={`${orbitAnimation} 8s linear infinite`}
-              >
-                <Box
-                  position="absolute"
-                  top="0"
-                  left="50%"
-                  transform="translate(-50%, -50%)"
-                  width="8px"
-                  height="8px"
-                  borderRadius="full"
-                  bg="#6366f1"
-                  filter="blur(2px)"
-                />
-              </Box>
+              {!isMobile && (
+                <>
+                  <Box
+                    position="absolute"
+                    top="50%"
+                    left="50%"
+                    transform="translate(-50%, -50%)"
+                    width="180%"
+                    height="180%"
+                    borderRadius="full"
+                    border="1px solid rgba(99, 102, 241, 0.1)"
+                    animation={`${orbitAnimation} 12s linear infinite`}
+                  >
+                    <Box
+                      position="absolute"
+                      top="0"
+                      left="50%"
+                      transform="translate(-50%, -50%)"
+                      width="10px"
+                      height="10px"
+                      borderRadius="full"
+                      background="linear-gradient(45deg, #6366f1, #818cf8)"
+                      filter="blur(2px)"
+                      boxShadow="0 0 20px #6366f1"
+                    />
+                  </Box>
+                  <Box
+                    position="absolute"
+                    top="50%"
+                    left="50%"
+                    transform="translate(-50%, -50%) rotate(90deg)"
+                    width="160%"
+                    height="160%"
+                    borderRadius="full"
+                    border="1px solid rgba(99, 102, 241, 0.05)"
+                    animation={`${orbitAnimation} 8s linear infinite reverse`}
+                  >
+                    <Box
+                      position="absolute"
+                      top="0"
+                      left="50%"
+                      transform="translate(-50%, -50%)"
+                      width="8px"
+                      height="8px"
+                      borderRadius="full"
+                      background="linear-gradient(45deg, #818cf8, #c4b5fd)"
+                      filter="blur(2px)"
+                      boxShadow="0 0 15px #818cf8"
+                    />
+                  </Box>
+                </>
+              )}
               <Avatar
-                size="2xl"
+                size={avatarSize}
                 name="Yanis Sebastian Zürcher"
                 src="/avatar.png"
                 border="4px solid"
@@ -309,26 +388,27 @@ export const LinkTree = () => {
                 _hover={{
                   borderColor: "rgba(99, 102, 241, 0.5)",
                   shadow: "0 0 60px rgba(99, 102, 241, 0.6)",
-                  transform: "scale(1.02)",
+                  transform: "scale(1.05)",
                   transition: "all 0.5s ease",
                 }}
               />
             </Box>
           </MotionBox>
           
-          <VStack spacing={3}>
+          <VStack spacing={2}>
             <MotionBox
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.5 }}
             >
               <Heading 
-                size="lg" 
+                size={headingSize}
                 textAlign="center" 
                 fontWeight="bold"
-                bgGradient="linear(to-r, #6366f1, #818cf8)"
+                bgGradient="linear(to-r, #6366f1, #818cf8, #c4b5fd)"
                 bgClip="text"
                 letterSpacing="wider"
+                px={2}
               >
                 Yanis Sebastian Zürcher
               </Heading>
@@ -341,7 +421,7 @@ export const LinkTree = () => {
               <Text 
                 color="whiteAlpha.700" 
                 textAlign="center"
-                fontSize="lg"
+                fontSize={{ base: "md", md: "lg" }}
                 maxW="md"
                 px={4}
                 letterSpacing="wide"
@@ -353,7 +433,7 @@ export const LinkTree = () => {
           </VStack>
         </VStack>
 
-        <VStack gap={4}>
+        <VStack gap={linkSpacing}>
           {links.map((link, index) => (
             <MotionLink
               key={link.title}
@@ -365,32 +445,36 @@ export const LinkTree = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ 
                 duration: 0.8,
-                delay: index * 0.15,
-                ease: [0.04, 0.62, 0.23, 0.98]
+                delay: index * (isMobile ? 0.1 : 0.15),
+                ease: [0.19, 1, 0.22, 1]
               }}
               _hover={{ textDecoration: "none" }}
             >
               <Box
-                p={4}
+                p={isMobile ? 3 : 4}
                 bg="rgba(99, 102, 241, 0.03)"
-                borderRadius="2xl"
+                borderRadius={isMobile ? "xl" : "2xl"}
                 backdropFilter="blur(12px)"
                 border="1px solid"
                 borderColor="rgba(99, 102, 241, 0.1)"
                 display="flex"
-                flexDirection="column"
+                flexDirection={isMobile ? "row" : "column"}
+                alignItems={isMobile ? "center" : "flex-start"}
                 gap={1}
-                transition="all 0.4s ease"
+                transition="all 0.4s cubic-bezier(0.19, 1, 0.22, 1)"
                 position="relative"
                 overflow="hidden"
                 _hover={{
                   bg: "rgba(99, 102, 241, 0.08)",
                   borderColor: "rgba(99, 102, 241, 0.2)",
-                  transform: "translateY(-2px)",
+                  transform: isMobile ? "scale(0.98)" : "translateY(-2px)",
                   shadow: "0 4px 20px rgba(99, 102, 241, 0.2)",
                   _before: {
                     transform: "translateX(100%)",
                   }
+                }}
+                _active={{
+                  transform: isMobile ? "scale(0.95)" : "translateY(-1px)",
                 }}
                 _before={{
                   content: '""',
@@ -399,39 +483,46 @@ export const LinkTree = () => {
                   left: 0,
                   width: "100%",
                   height: "100%",
-                  background: "linear-gradient(45deg, transparent, rgba(99, 102, 241, 0.1), transparent)",
+                  background: "linear-gradient(45deg, transparent, rgba(99, 102, 241, 0.2), transparent)",
                   transform: "translateX(-100%)",
-                  transition: "transform 0.6s ease",
+                  transition: "transform 0.6s cubic-bezier(0.19, 1, 0.22, 1)",
                 }}
               >
-                <Flex alignItems="center">
+                <Flex 
+                  alignItems="center" 
+                  width="100%"
+                  justifyContent={isMobile ? "flex-start" : "flex-start"}
+                >
                   <Icon 
                     as={link.icon} 
                     mr={3} 
                     color={link.color} 
-                    boxSize={6}
+                    boxSize={isMobile ? 5 : 6}
                     transition="all 0.3s"
                     _groupHover={{ 
-                      transform: "scale(1.1)",
-                      filter: "drop-shadow(0 0 8px rgba(99, 102, 241, 0.4))"
+                      transform: "scale(1.1) rotate(5deg)",
+                      filter: "drop-shadow(0 0 8px rgba(99, 102, 241, 0.6))"
                     }}
                   />
-                  <Text 
-                    fontSize="lg" 
-                    fontWeight="500"
-                    letterSpacing="wide"
-                    color="whiteAlpha.900"
-                  >
-                    {link.title}
-                  </Text>
+                  <Box>
+                    <Text 
+                      fontSize={isMobile ? "md" : "lg"}
+                      fontWeight="500"
+                      letterSpacing="wide"
+                      color="whiteAlpha.900"
+                    >
+                      {link.title}
+                    </Text>
+                    {!isMobile && (
+                      <Text
+                        fontSize="sm"
+                        color="whiteAlpha.600"
+                      >
+                        {link.description}
+                      </Text>
+                    )}
+                  </Box>
                 </Flex>
-                <Text
-                  fontSize="sm"
-                  color="whiteAlpha.600"
-                  pl={9}
-                >
-                  {link.description}
-                </Text>
               </Box>
             </MotionLink>
           ))}
@@ -440,7 +531,7 @@ export const LinkTree = () => {
       
       <Flex 
         as="footer" 
-        mt={12} 
+        mt={8}
         justifyContent="center" 
         color="whiteAlpha.400"
         fontSize="sm"
@@ -448,6 +539,8 @@ export const LinkTree = () => {
         borderColor="rgba(99, 102, 241, 0.1)"
         pt={4}
         backdropFilter="blur(8px)"
+        textAlign="center"
+        px={2}
       >
         <Text letterSpacing="wider">© {new Date().getFullYear()} Yanis Sebastian Zürcher. All rights reserved.</Text>
       </Flex>
