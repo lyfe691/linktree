@@ -5,12 +5,16 @@ const theme = extendTheme({
     initialColorMode: 'dark',
     useSystemColorMode: false,
   },
+  fonts: {
+    heading: '"JetBrains Mono", monospace',
+    body: '"JetBrains Mono", monospace',
+  },
   styles: {
     global: {
       body: {
-        bg: '#000',
+        bg: '#050505',
         color: 'white',
-        backgroundImage: 'linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(20,20,20,0.9) 100%)',
+        backgroundImage: 'linear-gradient(180deg, rgba(5,5,5,0.98) 0%, rgba(10,10,10,1) 100%)',
       },
     },
   },
@@ -25,6 +29,11 @@ const theme = extendTheme({
         _hover: {
           textDecoration: 'none',
         },
+      },
+    },
+    Container: {
+      baseStyle: {
+        maxW: 'container.sm',
       },
     },
   },
