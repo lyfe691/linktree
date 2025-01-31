@@ -13,13 +13,16 @@ import {
 } from "@chakra-ui/react";
 import { Avatar } from "@chakra-ui/avatar";
 import { motion } from "framer-motion";
-import { FaGithub, FaLinkedin, FaInstagram, FaGlobe, FaTiktok, FaPaypal } from "react-icons/fa";
+
+import { FaGithub, FaLinkedin, FaGlobe, FaPaypal } from "react-icons/fa";
+
+
 import { SiKofi } from "react-icons/si";
 import { useEffect, useRef } from "react";
 
 const MotionBox = motion(Box);
 const MotionLink = motion(ChakraLink);
-const MotionFlex = motion(Flex);
+// const MotionFlex = motion(Flex);
 
 const floatAnimation = keyframes`
   0% { transform: translateY(0px) rotate(0deg) scale(1); }
@@ -33,11 +36,11 @@ const pulseAnimation = keyframes`
   100% { transform: scale(1); opacity: 0.3; }
 `;
 
-const starryBackground = keyframes`
-  0% { transform: scale(1) rotate(0deg); }
-  50% { transform: scale(1.2) rotate(180deg); }
-  100% { transform: scale(1) rotate(360deg); }
-`;
+ //const starryBackground = keyframes`
+  //0% { transform: scale(1) rotate(0deg); }
+  //50% { transform: scale(1.2) rotate(180deg); }
+  //100% { transform: scale(1) rotate(360deg); }
+//`;
 
 const cosmicGlow = keyframes`
   0% { opacity: 0.3; filter: blur(8px); }
@@ -220,7 +223,7 @@ const ParticleCanvas = () => {
 
 export const LinkTree = () => {
   const [isMobile] = useMediaQuery("(max-width: 480px)");
-  const particleCount = useBreakpointValue({ base: 50, md: 100 });
+   //const particleCount = useBreakpointValue({ base: 50, md: 100 });
   const avatarSize = useBreakpointValue({ base: "xl", md: "2xl" });
   const headingSize = useBreakpointValue({ base: "md", md: "lg" });
   const linkSpacing = useBreakpointValue({ base: 3, md: 4 });
